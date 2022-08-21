@@ -2,19 +2,23 @@
 #define EVENTLOOP_H
 
 #include "eventloop_export.h"
+#include "event.h"
 
 
-class EVENTLOOP_EXPORT CEventLoop final
+class EVENTLOOP_EXPORT CEventLoop
 {
+    struct CEventLoopImpl;
+    CEventLoopImpl *impl_;
+
+    CEventLoop( const CEventLoop &other );
+    CEventLoop &operator=( const CEventLoop &other );
 public:
     CEventLoop();
-    CEventLoop(const CEventLoop &other);
-    CEventLoop(CEventLoop &&other) noexcept;
-    CEventLoop &operator=(const CEventLoop &other);
-    CEventLoop &operator=(CEventLoop &&other) noexcept;
     ~CEventLoop();
 
     int process();
+    bool post( IEvent *event );
+    void stop();
 };
 
 #endif //EVENTLOOP_H

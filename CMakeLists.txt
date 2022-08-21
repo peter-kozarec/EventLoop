@@ -15,6 +15,9 @@ endif()
 
 target_sources(${PROJECT_NAME}
         PRIVATE
+            src/utils/mutex.cpp
+            src/utils/mutexlocker.cpp
+            src/utils/conditionalvar.cpp
             src/eventloop.cpp)
 
 target_include_directories(${PROJECT_NAME}
@@ -34,7 +37,8 @@ generate_export_header(${PROJECT_NAME}
 
 set(PUBLIC_HEADERS
         include/eventloop_export.h
-        include/eventloop.h)
+        include/eventloop.h
+        include/event.h)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
