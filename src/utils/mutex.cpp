@@ -3,30 +3,22 @@
 
 CMutex::CMutex()
 {
-    interlock_ = MUTEX_UNLOCKED;
+    handle_ = ::CreateEvent( NULL, FALSE, FALSE, NULL );
+    ::SetEvent( handle_ );
 }
 
 CMutex::~CMutex()
 {
-    interlock_ = MUTEX_UNLOCKED;
+    ::ResetEvent( handle_ );
+    ::CloseHandle( handle_ );
 }
 
 void CMutex::lock()
 {
-#ifdef TARG_PLATFORM_WINDOWS
-    while ( interlock_ == MUTEX_LOCKED ||
-            InterlockedCompareExchange( &interlock_, 1, 0 ) == 1 )
-    {
-    }
-#endif
-#ifdef TARG_PLATFORM_LINUX
-    while(interlock_ == MUTEX_LOCKED ||
-          __sync_lock_test_and_set(&interlock_, 1) == 1)
-    {}
-#endif
+    ::WaitForSingleObject( handle_, INFINITE );
 }
 
 void CMutex::unlock()
 {
-    interlock_ = MUTEX_UNLOCKED;
+    ::SetEvent( handle_ );
 }
