@@ -1,7 +1,8 @@
-#include "eventloop.h"
-#include "event.h"
+#include "eventloop.hpp"
+#include "event.hpp"
 #include <chrono>
 #include <thread>
+
 
 CEventLoop eventLoop;
 
@@ -18,13 +19,13 @@ void CustomEvent::process()
 
 void run()
 {
-    std::this_thread::sleep_for( std::chrono::milliseconds( 10000 ) );
-    eventLoop.post( new CustomEvent );
+    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    eventLoop.post(new CustomEvent);
 }
 
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
-    std::thread thread( &run );
+    std::thread thread(&run);
     const int result = eventLoop.process();
     thread.join();
     return result;

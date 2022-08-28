@@ -1,8 +1,8 @@
-#include "mutexlocker.h"
+#include "mutexlocker.hpp"
 
-CMutexLocker::CMutexLocker( CMutex &mutex )
+
+CMutexLocker::CMutexLocker(CMutex &mutex) : mutex_(&mutex)
 {
-    mutex_ = &mutex;
     mutex_->lock();
 }
 

@@ -6,9 +6,15 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 add_library(${PROJECT_NAME} SHARED)
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(${PROJECT_NAME} PRIVATE -Werror)
-endif()
+endif ()
+
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC __x86)
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "(amd64)|(AMD64)")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC __x64)
+endif ()
 
 target_sources(${PROJECT_NAME}
         PRIVATE
@@ -30,12 +36,12 @@ include(GenerateExportHeader)
 
 generate_export_header(${PROJECT_NAME}
         EXPORT_FILE_NAME
-            ${CMAKE_SOURCE_DIR}/include/eventloop_export.h)
+            ${CMAKE_SOURCE_DIR}/include/eventloop_export.hpp)
 
 set(PUBLIC_HEADERS
-        include/eventloop_export.h
-        include/eventloop.h
-        include/event.h)
+        include/eventloop_export.hpp
+        include/eventloop.hpp
+        include/event.hpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
@@ -75,11 +81,11 @@ install(FILES ${CMAKE_BINARY_DIR}/EventLoop.pc DESTINATION ${CMAKE_INSTALL_DATAR
 
 
 option(BUILD_TESTS "Building tests" ON)
-if(BUILD_TESTS)
-    add_executable(EventLoopTest tests/eventloop_test.cpp)
+if (BUILD_TESTS)
+    add_executable(EventLoopTest tests/eventlooptst.cpp)
     target_link_libraries(EventLoopTest EventLoop)
 
     enable_testing()
 
     add_test(NAME EventLoopTest COMMAND $<TARGET_FILE:EventLoopTest>)
-endif()
+endif ()

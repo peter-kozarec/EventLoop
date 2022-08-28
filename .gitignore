@@ -1,5 +1,5 @@
 .idea/
 build/
 cmake-*/
-include/eventloop_export.h
+include/eventloop_export.hpp
 

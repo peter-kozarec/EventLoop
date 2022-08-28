@@ -1,24 +1,24 @@
-#include "mutex.h"
+#include "mutex.hpp"
 
 
 CMutex::CMutex()
 {
-    handle_ = ::CreateEvent( NULL, FALSE, FALSE, NULL );
-    ::SetEvent( handle_ );
+    handle_ = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+    ::SetEvent(handle_);
 }
 
 CMutex::~CMutex()
 {
-    ::ResetEvent( handle_ );
-    ::CloseHandle( handle_ );
+    ::ResetEvent(handle_);
+    ::CloseHandle(handle_);
 }
 
 void CMutex::lock()
 {
-    ::WaitForSingleObject( handle_, INFINITE );
+    ::WaitForSingleObject(handle_, INFINITE);
 }
 
 void CMutex::unlock()
 {
-    ::SetEvent( handle_ );
+    ::SetEvent(handle_);
 }
