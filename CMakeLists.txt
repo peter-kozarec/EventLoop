@@ -10,10 +10,11 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(${PROJECT_NAME} PRIVATE -Werror)
 endif ()
 
+# For cross compiling, this needs to change
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC __x86)
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "(amd64)|(AMD64)")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC __x64)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC __x86__)
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "(amd64)|(AMD64)|(EM64T)|(em64t)|(ARM64)|(arm64)|(IA64)|(ia64)")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC __x64__)
 endif ()
 
 target_sources(${PROJECT_NAME}
