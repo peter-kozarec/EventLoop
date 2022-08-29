@@ -15,6 +15,8 @@ class CPtrQueue
     QueueNode *node_;
     tsize capacity_;
     tsize size_{0};
+    tsize head_{0};
+    tsize tail_{0};
 
 public:
     explicit CPtrQueue(tsize capacity = 1000);
@@ -22,7 +24,10 @@ public:
 
     T *dequeue();
     bool enqueue(T *item);
+
     bool is_empty();
+    tsize size() const;
+    tsize capacity() const;
 };
 
 template<typename T>
@@ -39,7 +44,7 @@ CPtrQueue<T>::~CPtrQueue()
     {
         delete node_[i].data;
     }
-    delete[]node_;
+    delete []node_;
 }
 
 template<typename T>
@@ -49,8 +54,14 @@ bool CPtrQueue<T>::enqueue(T *item)
     {
         return false;
     }
-    node_[size_].data = item;
+    node_[head_].data = item;
+
     size_++;
+    head_++;
+
+    if (head_ == capacity_)
+        head_ = 0;
+
     return true;
 }
 
@@ -61,13 +72,34 @@ T *CPtrQueue<T>::dequeue()
     {
         return 0;
     }
-    return node_[--size_].data;
+
+    auto *data = node_[tail_].data;
+
+    --size_;
+    ++tail_;
+
+    if (tail_ == capacity_)
+        tail_ = 0;
+
+    return data;
 }
 
 template<typename T>
 bool CPtrQueue<T>::is_empty()
 {
     return size_ == 0;
+}
+
+template<typename T>
+tsize CPtrQueue<T>::size() const
+{
+    return size_;
+}
+
+template<typename T>
+tsize CPtrQueue<T>::capacity() const
+{
+    return capacity_;
 }
 
 #endif // EVENTLOOP_UTILS_PTRQUEUE_HPP

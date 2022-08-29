@@ -31,6 +31,8 @@ target_include_directories(${PROJECT_NAME}
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+add_subdirectory(tests)
+
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
@@ -79,14 +81,3 @@ export(EXPORT "${PROJECT_NAME}Targets"
 
 configure_file(EventLoop.pc.in EventLoop.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/EventLoop.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
-
-
-option(BUILD_TESTS "Building tests" ON)
-if (BUILD_TESTS)
-    add_executable(EventLoopTest tests/eventlooptst.cpp)
-    target_link_libraries(EventLoopTest EventLoop)
-
-    enable_testing()
-
-    add_test(NAME EventLoopTest COMMAND $<TARGET_FILE:EventLoopTest>)
-endif ()
