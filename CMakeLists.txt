@@ -32,7 +32,7 @@ target_include_directories(${PROJECT_NAME}
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 enable_testing()
-add_subdirectory(tests EXCLUDE_FROM_ALL)
+add_subdirectory(tests)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
