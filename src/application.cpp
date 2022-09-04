@@ -13,6 +13,7 @@ struct CApplication::CApplicationImpl
         argv(argv) {}
 };
 
+CApplication::CApplicationImpl *CApplication::application_ = nullptr;
 
 CApplication::CApplication(int argc, char **argv)
 {

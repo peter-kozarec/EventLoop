@@ -7,7 +7,7 @@
 class EVENTLOOP_EXPORT CApplication
 {
     struct CApplicationImpl;
-    static inline CApplicationImpl *application_ = nullptr;
+    static CApplicationImpl *application_;
 
     CApplication(const CApplication&);
     CApplication& operator=(const CApplication&);
