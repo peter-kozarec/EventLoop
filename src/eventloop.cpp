@@ -1,35 +1,24 @@
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
+
 #include "eventloop.hpp"
-#include "utils/ptrqueue.hpp"
-#include "utils/mutex.hpp"
-#include "utils/mutexlocker.hpp"
-#include "utils/conditionalvar.hpp"
 
 
 struct CEventLoop::CEventLoopImpl
 {
-    CConditionalVar cv;
-    CMutex event_queue_mutex;
-    CPtrQueue<IEvent> event_queue;
-    CMutex stop_mutex;
-    bool request_process_stop{false};
-
-    CEventLoopImpl() = default;
-
-    bool event_or_stop();
+    std::condition_variable cv{};
+    std::mutex event_queue_mutex{};
+    std::queue<IEvent*> event_queue{};
+    std::atomic_bool request_process_stop{};
 };
 
-bool CEventLoop::CEventLoopImpl::event_or_stop()
-{
-    event_queue_mutex.lock();
-    const auto is_queue_empty = event_queue.is_empty();
-    event_queue_mutex.unlock();
 
-    CMutexLocker lock(stop_mutex);
-    return request_process_stop || !is_queue_empty;
-}
-
-CEventLoop::CEventLoop() : impl_(new CEventLoopImpl())
+CEventLoop::CEventLoop()
+    : impl_(new CEventLoopImpl())
 {
+    impl_->request_process_stop.store(false, std::memory_order_relaxed);
 }
 
 CEventLoop::~CEventLoop()
@@ -37,50 +26,44 @@ CEventLoop::~CEventLoop()
     delete impl_;
 }
 
-int CEventLoop::process()
+void CEventLoop::process()
 {
-    CMutex cv_mutex;
-    CMutexLocker lock(cv_mutex);
-    while (!impl_->request_process_stop)
+    std::mutex mtx;
+    std::unique_lock<std::mutex> lock(mtx);
+
+    while (!impl_->request_process_stop.load(std::memory_order_release))
     {
-        impl_->event_queue_mutex.lock();
-        const auto is_queue_empty = impl_->event_queue.is_empty();
-        impl_->event_queue_mutex.unlock();
-
-        if (is_queue_empty)
-        {
-            impl_->cv.wait(lock, impl_, &CEventLoopImpl::event_or_stop);
-        }
+        IEvent *event = nullptr;
 
         impl_->event_queue_mutex.lock();
-        auto *const event = impl_->event_queue.dequeue();
+        if (!impl_->event_queue.empty())
+            event = impl_->event_queue.front();
         impl_->event_queue_mutex.unlock();
 
         if (event)
         {
             event->process();
         }
+        else
+        {
+            impl_->cv.wait(lock);
+        }
     }
-    return 0;
 }
 
-bool CEventLoop::post(IEvent *event)
+void CEventLoop::post(IEvent *event)
 {
     impl_->event_queue_mutex.lock();
-    const auto post_result = impl_->event_queue.enqueue(event);
+    {
+        impl_->event_queue.push(event);
+    }
     impl_->event_queue_mutex.unlock();
 
-    if (post_result)
-    {
-        impl_->cv.notify_one();
-        return true;
-    }
-    return false;
+    impl_->cv.notify_one();
 }
 
 void CEventLoop::stop()
 {
-    CMutexLocker lock(impl_->stop_mutex);
-    impl_->request_process_stop = true;
+    impl_->request_process_stop.store(true, std::memory_order_relaxed);
     impl_->cv.notify_one();
 }

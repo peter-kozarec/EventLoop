@@ -16,8 +16,8 @@ public:
     CEventLoop();
     ~CEventLoop();
 
-    int process();
-    bool post(IEvent *event);
+    void process();
+    void post(IEvent *event);
     void stop();
 };
 
